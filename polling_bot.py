@@ -7,13 +7,12 @@
 В конце запуск бота
 """
 
-import os
+
 import telebot
 
 import database
 import keyboard
 from config import BOT_TOKEN
-
 
 
 BOT = telebot.TeleBot(BOT_TOKEN)
@@ -48,9 +47,9 @@ def callback_inline(call):
         _keyboard = keyboard.confirm_key()
 
     elif call.data == 'delete_confirm':
-        database.delete_all(user_id)
+        database.delete_all()
 
-    text = database.select_notes(user_id)
+    text = database.select_notes()
     BOT.edit_message_text(chat_id=user_id, message_id=call.message.message_id, text=text, reply_markup=_keyboard)
 
 
@@ -62,8 +61,8 @@ def start_commnad(message):
 
     user_id = message.chat.id
 
-    database.create_database(user_id)
-    text = database.select_notes(user_id)
+    database.create_database()
+    text = database.select_notes()
 
     _send_message(user_id, text, keyboard.delete_key())
 
@@ -77,11 +76,11 @@ def standart_message(message):
     user_id = message.chat.id
 
     if message.reply_to_message is not None:
-        database.update_note(user_id, message.text, message.reply_to_message.message_id)
+        database.update_note(message.text, message.reply_to_message.message_id)
     else:
-        database.insert_note(user_id, message.text, message.message_id)
+        database.insert_note(message.text, message.message_id)
 
-    text = database.select_notes(user_id)
+    text = database.select_notes()
     BOT.delete_message(user_id, message.message_id - 1)
 
     _send_message(user_id, text, keyboard.delete_key())
