@@ -8,10 +8,8 @@
 from telebot import types
 
 
-def delete_key():
-    """
-    Inline кнопка Очистить
-    """
+def delete_key() -> types.InlineKeyboardMarkup:
+    """Inline кнопка Очистить"""
 
     keyboard = types.InlineKeyboardMarkup()
     delete_btn = types.InlineKeyboardButton(text='Очистить', callback_data='delete_all')
@@ -20,10 +18,8 @@ def delete_key():
     return keyboard
 
 
-def confirm_key():
-    """
-    Inline кнопка Очистить
-    """
+def confirm_key() -> types.InlineKeyboardMarkup:
+    """Inline кнопка Очистить"""
 
     keyboard = types.InlineKeyboardMarkup()
     confirm_btn = types.InlineKeyboardButton(text='Уверены?', callback_data='delete_confirm')

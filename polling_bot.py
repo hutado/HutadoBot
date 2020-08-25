@@ -18,10 +18,8 @@ from config import BOT_TOKEN
 BOT = telebot.TeleBot(BOT_TOKEN)
 
 
-def _send_message(chat_id, text, _keyboard=''):
-    """
-    Обертка отправки сообщений
-    """
+def _send_message(chat_id: int, text: str, _keyboard='') -> None:
+    """Обертка отправки сообщений"""
 
     BOT.send_message(
         chat_id=chat_id,
@@ -35,10 +33,8 @@ def _send_message(chat_id, text, _keyboard=''):
 ###################
 
 @BOT.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
-    """
-    Обработка Inline кнопок
-    """
+def callback_inline(call: telebot.types.CallbackQuery) -> None:
+    """Обработка Inline кнопок"""
 
     user_id = call.message.chat.id
     _keyboard = ''
@@ -54,7 +50,7 @@ def callback_inline(call):
 
 
 @BOT.message_handler(commands=['start'])
-def start_commnad(message):
+def start_commnad(message: telebot.types.Message) -> None:
     """
     Обработка команды /start
     """
@@ -68,7 +64,7 @@ def start_commnad(message):
 
 
 @BOT.message_handler(content_types=["text"])
-def standart_message(message):
+def standart_message(message: telebot.types.Message) -> None:
     """
     Добавление/изменение сообщения
     """
@@ -81,7 +77,6 @@ def standart_message(message):
         database.insert_note(message.text, message.message_id)
 
     text = database.select_notes()
-    BOT.delete_message(user_id, message.message_id - 1)
 
     _send_message(user_id, text, keyboard.delete_key())
 
