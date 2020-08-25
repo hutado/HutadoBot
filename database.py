@@ -13,12 +13,14 @@ from config import DATABASE
 def create_database() -> None:
     """Создание БД и таблиц, если их еще нет"""
 
-    sql = """
+    sql_list = """
         CREATE TABLE IF NOT EXISTS "List" (
             "@List" integer not null primary key,
             "Note" text not null,
             "MessageID" int not null
         );
+    """
+    sql_rss = """
         CREATE TABLE IF NOT EXISTS "Rss" (
             "Title" text not null primary key,
             "Date" date not null
@@ -27,8 +29,11 @@ def create_database() -> None:
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute(sql)
+    cursor.execute(sql_list)
     conn.commit()
+    cursor.execute(sql_rss)
+    conn.commit()
+    conn.close()
 
 
 def article_in_db(title_: str, date_: date) -> bool:
@@ -97,6 +102,7 @@ def insert_note(note: str, message_id: int) -> None:
     cursor = conn.cursor()
     cursor.execute(sql, {'note': note, 'message_id': message_id})
     conn.commit()
+    conn.close()
 
 
 def update_note(note: str, message_id: int) -> None:
@@ -112,6 +118,7 @@ def update_note(note: str, message_id: int) -> None:
     cursor = conn.cursor()
     cursor.execute(sql, {'note': note, 'message_id': message_id})
     conn.commit()
+    conn.close()
 
 
 def delete_all() -> None:
@@ -123,3 +130,4 @@ def delete_all() -> None:
     cursor = conn.cursor()
     cursor.execute(sql)
     conn.commit()
+    conn.close()
