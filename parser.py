@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-Feed telegram bot
+Парсинг RSS лент
 """
 
 
@@ -51,7 +54,8 @@ def parse_rss(str_: str, site: str) -> requests.Response:
 def weather() -> requests.Response:
     """Погода с OpenWeatherMap"""
 
-    res = requests.get(config.OWM, params={'id': config.CITY_ID, 'units': 'metric', 'lang': 'ru', 'APPID': config.APP_ID})
+    _params = {'id': config.CITY_ID, 'units': 'metric', 'lang': 'ru', 'APPID': config.APP_ID}
+    res = requests.get(config.OWM, params=_params)
 
     data = res.json()
 
