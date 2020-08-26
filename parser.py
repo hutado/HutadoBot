@@ -9,8 +9,10 @@
 import sys
 import requests
 import feedparser
-from datetime import datetime, timedelta
+from json import loads
 from time import mktime
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
 import config
 import database
@@ -29,11 +31,11 @@ def send(message: str) -> requests.Response:
     )
 
 
-def parse_rss(str_: str, site: str) -> requests.Response:
+def parse_rss(str_: str, site: str) -> str:
     """Парсинг RSS лент"""
 
-    exists = False
     feed = feedparser.parse(site)
+    str_ = ''
 
     for article in feed['entries']:
         # Если пост есть в БД, не отправляем его
@@ -41,17 +43,16 @@ def parse_rss(str_: str, site: str) -> requests.Response:
             continue
         # Добавляем пост в БД
         database.add_article_to_db(article['title'], article['published'])
-        exists = True
         title = article['title']
         published = datetime.fromtimestamp(mktime(article['published_parsed'])) + timedelta(hours=3)
         link = article['link']
 
-        str_ += '*{}*\nОпубликовано: _{}_\n[Ссылка]({})\n\n'.format(title.replace('&amp;', '&'), published, link)
+        str_ += f'*{title.replace("&amp;", "&")}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
 
-    return send(str_) if exists else None
+    return str_ or 'Новых постов нет'
 
 
-def weather() -> requests.Response:
+def weather() -> str:
     """Погода с OpenWeatherMap"""
 
     _params = {'id': config.CITY_ID, 'units': 'metric', 'lang': 'ru', 'APPID': config.APP_ID}
@@ -60,10 +61,8 @@ def weather() -> requests.Response:
     data = res.json()
 
     if data['cod'] != 200:
-        message = 'Не удалось получить погоду\nПричина:\n{}'.format(data['message'])
-        return send(message)
+        return f'Не удалось получить погоду\nПричина:\n{data["message"]}'
 
-    city = data['name']
     tmpr = data['main']['temp']
     feels_like = data['main']['feels_like']
     weather_ = data['weather'][0]['description']
@@ -72,16 +71,41 @@ def weather() -> requests.Response:
     wind = data['wind']['speed']
     humidity = data['main']['humidity']
 
-    str_ = '*Погода {}*\n{}\n_{}_\nТемпература воздуха: `{}°`\nОщущается как: `{}°`\nСкорость ветра: `{} м/с`\n'\
-        'Влажность: `{}%`'.format(city, main_weather_icon*5, weather_, tmpr, feels_like, wind, humidity)
+    return f'*Погода в Костроме*\n{main_weather_icon*5}\n_{weather_}_\n\
+        Температура воздуха: `{tmpr}°`\nОщущается как: `{feels_like}°`\n\
+        Скорость ветра: `{wind} м/с`\nВлажность: `{humidity}%`'
 
-    return send(str_)
+
+def coronavirus() -> str:
+    """Информация о коронавирусе"""
+
+    url = 'https://xn--80aesfpebagmfblc0a.xn--p1ai/information/'
+    html = requests.get(url).text
+
+    soup = BeautifulSoup(html, 'lxml')
+
+    header = soup.find('h1', class_='cv-section__title_mobile-small').text
+    stats_item = soup.find('cv-stats-virus')
+    stats = loads(stats_item.attrs.get(':stats-data')) if stats_item else None
+
+    if stats:
+        return f'{header}\nВыявлено заболевших: `{stats.get("sick")}`\n\
+            Выявлено заболевших за сутки: `{stats.get("sickChange")}`\n\
+            Человек выздоровело: `{stats.get("healed")}`\n\
+            Человек выздоровело за сутки: `{stats.get("healedChange")}`\n\
+            Человек умерло: `{stats.get("died")}`\n\
+            Человек умерло за сутки: `{stats.get("diedChange")}`\n'
+
+    return 'Не удалось получить информацию о коронавирусе'
 
 
 if __name__ == '__main__':
+    result = coronavirus()
     if sys.argv[1] == 'weather':
-        weather()
+        send(weather())
     elif sys.argv[1] == 'habr':
-        parse_rss('*Новые посты на Habr:*\n\n', config.HABR)
+        send(parse_rss('*Новые посты на Habr:*\n\n', config.HABR))
     elif sys.argv[1] == 'dtf':
-        parse_rss('*Новые посты на DTF:*\n\n', config.DTF)
+        send(parse_rss('*Новые посты на DTF:*\n\n', config.DTF))
+    elif sys.argv[1] == 'coronavirus':
+        send(coronavirus())
