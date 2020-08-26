@@ -71,9 +71,9 @@ def weather() -> str:
     wind = data['wind']['speed']
     humidity = data['main']['humidity']
 
-    return f'*Погода в Костроме*\n{main_weather_icon*5}\n_{weather_}_\n\
-        Температура воздуха: `{tmpr}°`\nОщущается как: `{feels_like}°`\n\
-        Скорость ветра: `{wind} м/с`\nВлажность: `{humidity}%`'
+    return f'*Погода в Костроме*\n{main_weather_icon*5}\n_{weather_}_\n'\
+        f'Температура воздуха: `{tmpr}°`\nОщущается как: `{feels_like}°`\n'\
+        f'Скорость ветра: `{wind} м/с`\nВлажность: `{humidity}%`'
 
 
 def coronavirus() -> str:
@@ -89,12 +89,12 @@ def coronavirus() -> str:
     stats = loads(stats_item.attrs.get(':stats-data')) if stats_item else None
 
     if stats:
-        return f'{header}\nВыявлено заболевших: `{stats.get("sick")}`\n\
-            Выявлено заболевших за сутки: `{stats.get("sickChange")}`\n\
-            Человек выздоровело: `{stats.get("healed")}`\n\
-            Человек выздоровело за сутки: `{stats.get("healedChange")}`\n\
-            Человек умерло: `{stats.get("died")}`\n\
-            Человек умерло за сутки: `{stats.get("diedChange")}`\n'
+        return f'*{header}*\n\nВыявлено заболевших: `{stats.get("sick")}`\n'\
+            f'Выявлено заболевших за сутки: `{stats.get("sickChange")}`\n'\
+            f'Человек выздоровело: `{stats.get("healed")}`\n'\
+            f'Человек выздоровело за сутки: `{stats.get("healedChange")}`\n'\
+            f'Человек умерло: `{stats.get("died")}`\n'\
+            f'Человек умерло за сутки: `{stats.get("diedChange")}`\n'
 
     return 'Не удалось получить информацию о коронавирусе'
 
