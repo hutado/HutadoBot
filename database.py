@@ -176,6 +176,29 @@ def update_note(note: str, message_id: int) -> None:
     conn.close()
 
 
+def delete_note(list_id: int) -> None:
+    """Удаление заметки"""
+
+    sql_delete = """
+        DELETE FROM "List"
+        WHERE "@List" = :list_id
+    """
+
+    sql_update = """
+        UPDATE "List"
+        SET "@List" = "@List" - 1
+        WHERE   "@List" > :list_id
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute(sql_delete, {'list_id': list_id})
+    conn.commit()
+    cursor.execute(sql_update, {'list_id': list_id})
+    conn.commit()
+    conn.close()
+
+
 def delete_all() -> None:
     """Очистка списка"""
 

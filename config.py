@@ -10,8 +10,10 @@ import os
 
 
 # RSS ленты
-HABR = 'https://habr.com/ru/rss/all/top100/?fl=ru'
-DTF = 'https://dtf.ru/rss/new'
+RSS = {
+    'Habr': 'https://habr.com/ru/rss/all/top100/?fl=ru',
+    'DTF': 'https://dtf.ru/rss/new'
+}
 
 # OpenWeatherMap
 OWM = "http://api.openweathermap.org/data/2.5/weather"

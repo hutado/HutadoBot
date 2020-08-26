@@ -11,6 +11,7 @@
 import telebot
 import datetime
 
+import parser
 import database
 import keyboard
 from config import BOT_TOKEN
@@ -81,12 +82,21 @@ def list_commnad(message: telebot.types.Message) -> None:
     _send_message(message.chat.id, database.select_notes(), keyboard.delete_key())
 
 
+@BOT.message_handler(commands=['weather'])
+def weather_commnad(message: telebot.types.Message) -> None:
+    """Обработка команды /weather"""
+
+    _send_message(message.chat.id, parser.weather())
+
+
 @BOT.message_handler(content_types=["text"])
 def standart_message(message: telebot.types.Message) -> None:
     """Добавление/изменение сообщения"""
 
     if message.reply_to_message is not None:
         database.update_note(message.text, message.reply_to_message.message_id)
+    elif message.text[0].isdigit():
+        database.delete_note(int(message.text[0]))
     else:
         database.insert_note(message.text, message.message_id)
 

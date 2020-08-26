@@ -31,10 +31,11 @@ def send(message: str) -> requests.Response:
     )
 
 
-def parse_rss(str_: str, site: str) -> str:
+def parse_rss(site: str) -> str:
     """Парсинг RSS лент"""
 
-    feed = feedparser.parse(site)
+    feed = feedparser.parse(config.RSS.get(site))
+    header = f'*Новые посты на {site}:*\n\n'
     str_ = ''
 
     for article in feed['entries']:
@@ -49,7 +50,7 @@ def parse_rss(str_: str, site: str) -> str:
 
         str_ += f'*{title.replace("&amp;", "&")}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
 
-    return str_ or 'Новых постов нет'
+    return header + str_ if str_ else f'Новых постов на {site} нет'
 
 
 def weather() -> str:
@@ -104,8 +105,8 @@ if __name__ == '__main__':
     if sys.argv[1] == 'weather':
         send(weather())
     elif sys.argv[1] == 'habr':
-        send(parse_rss('*Новые посты на Habr:*\n\n', config.HABR))
+        send(parse_rss('Habr'))
     elif sys.argv[1] == 'dtf':
-        send(parse_rss('*Новые посты на DTF:*\n\n', config.DTF))
+        send(parse_rss('DTF'))
     elif sys.argv[1] == 'coronavirus':
         send(coronavirus())
