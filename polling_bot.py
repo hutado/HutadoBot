@@ -14,7 +14,7 @@ import database
 import keyboard
 from config import BOT_TOKEN
 
-BOT_TOKEN = '1063707243:AAHBX-Pz18F7h2QhJbHyMS9Lj00K_KSD23o'
+
 BOT = telebot.TeleBot(BOT_TOKEN)
 
 
