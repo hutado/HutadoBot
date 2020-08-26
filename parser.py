@@ -101,7 +101,6 @@ def coronavirus() -> str:
 
 
 if __name__ == '__main__':
-    result = coronavirus()
     if sys.argv[1] == 'weather':
         send(weather())
     elif sys.argv[1] == 'habr':
