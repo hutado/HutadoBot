@@ -27,11 +27,20 @@ def create_database() -> None:
         );
     """
 
+    sql_message = """
+        CREATE TABLE IF NOT EXISTS "LastMessage" (
+            "MessageID" int not null primary key,
+            "PublishDate" datetime not null
+        );
+    """
+
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute(sql_list)
     conn.commit()
     cursor.execute(sql_rss)
+    conn.commit()
+    cursor.execute(sql_message)
     conn.commit()
     conn.close()
 
@@ -68,6 +77,52 @@ def add_article_to_db(title_: str, date_: date) -> None:
     conn.commit()
     conn.close()
 
+
+def select_last_message():
+    """Получение последнего сообщения, отправленного ботом"""
+
+    sql = """
+        SELECT "MessageID", "PublishDate"
+        FROM "LastMessage"
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    conn.close()
+
+    return result
+
+
+def insert_last_message(message_id):
+    """Вставка id сообщения"""
+
+    sql = """
+        INSERT INTO "LastMessage"
+        VALUES (:message_id, datetime('now'))
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute(sql, {'message_id': message_id})
+    conn.commit()
+    conn.close()
+
+
+def update_last_message(message_id):
+    """Обновление id последнео сообщения"""
+
+    sql = """
+        UPDATE "LastMessage"
+        SET "MessageID" = :message_id, "PublishDate" = datetime('now')
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute(sql, {'message_id': message_id})
+    conn.commit()
+    conn.close()
 
 def select_notes() -> str:
     """Получение списка заметок"""

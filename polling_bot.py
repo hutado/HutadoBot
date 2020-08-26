@@ -9,6 +9,7 @@
 
 
 import telebot
+import datetime
 
 import database
 import keyboard
@@ -21,12 +22,23 @@ BOT = telebot.TeleBot(BOT_TOKEN)
 def _send_message(chat_id: int, text: str, _keyboard='') -> None:
     """Обертка отправки сообщений"""
 
-    BOT.send_message(
+    last_message = database.select_last_message()
+    if last_message:
+        date_ = datetime.datetime.strptime(last_message[1], '%Y-%m-%d %H:%M:%S')
+        if date_ > datetime.datetime.now() - datetime.timedelta(3):
+            BOT.delete_message(chat_id, last_message[0])
+
+    result = BOT.send_message(
         chat_id=chat_id,
         text=text,
         parse_mode='Markdown',
         reply_markup=_keyboard
     )
+
+    if last_message:
+        database.update_last_message(result.message_id)
+    else:
+        database.insert_last_message(result.message_id)
 
 ###################
 #    Commands     #
