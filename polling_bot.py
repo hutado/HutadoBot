@@ -36,7 +36,6 @@ def _send_message(chat_id: int, text: str, _keyboard='') -> None:
 def callback_inline(call: telebot.types.CallbackQuery) -> None:
     """Обработка Inline кнопок"""
 
-    user_id = call.message.chat.id
     _keyboard = ''
 
     if call.data == 'delete_all':
@@ -46,39 +45,40 @@ def callback_inline(call: telebot.types.CallbackQuery) -> None:
         database.delete_all()
 
     text = database.select_notes()
-    BOT.edit_message_text(chat_id=user_id, message_id=call.message.message_id, text=text, reply_markup=_keyboard)
+    BOT.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=text,
+        reply_markup=_keyboard
+    )
 
 
 @BOT.message_handler(commands=['start'])
 def start_commnad(message: telebot.types.Message) -> None:
-    """
-    Обработка команды /start
-    """
-
-    user_id = message.chat.id
+    """Обработка команды /start"""
 
     database.create_database()
-    text = database.select_notes()
 
-    _send_message(user_id, text, keyboard.delete_key())
+    _send_message(message.chat.id, database.select_notes(), keyboard.delete_key())
+
+
+@BOT.message_handler(commands=['list'])
+def list_commnad(message: telebot.types.Message) -> None:
+    """Обработка команды /list"""
+
+    _send_message(message.chat.id, database.select_notes(), keyboard.delete_key())
 
 
 @BOT.message_handler(content_types=["text"])
 def standart_message(message: telebot.types.Message) -> None:
-    """
-    Добавление/изменение сообщения
-    """
-
-    user_id = message.chat.id
+    """Добавление/изменение сообщения"""
 
     if message.reply_to_message is not None:
         database.update_note(message.text, message.reply_to_message.message_id)
     else:
         database.insert_note(message.text, message.message_id)
 
-    text = database.select_notes()
-
-    _send_message(user_id, text, keyboard.delete_key())
+    _send_message(message.chat.id, database.select_notes(), keyboard.delete_key())
 
 
 ###################
