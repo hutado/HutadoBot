@@ -31,6 +31,17 @@ def send(message: str) -> requests.Response:
     )
 
 
+def replace_symbols(text: str) -> str:
+    """Замена символов"""
+
+    symbols = {"&#039;": "'", "&amp;": "&"}
+
+    for item in symbols:
+        text.replace(item, symbols[item])
+
+    return text
+
+
 def parse_rss(site: str) -> str:
     """Парсинг RSS лент"""
 
@@ -48,7 +59,7 @@ def parse_rss(site: str) -> str:
         published = datetime.fromtimestamp(mktime(article['published_parsed'])) + timedelta(hours=3)
         link = article['link']
 
-        str_ += f'*{title.replace("&amp;", "&")}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
+        str_ += f'*{replace_symbols(title)}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
 
     return header + str_ if str_ else f'Новых постов на {site} нет'
 
