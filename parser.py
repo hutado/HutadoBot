@@ -55,11 +55,11 @@ def parse_rss(site: str) -> str:
             continue
         # Добавляем пост в БД
         database.add_article_to_db(article['title'], article['published'])
-        title = article['title']
+        title = replace_symbols(article['title'])
         published = datetime.fromtimestamp(mktime(article['published_parsed'])) + timedelta(hours=3)
         link = article['link']
 
-        str_ += f'*{replace_symbols(title)}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
+        str_ += f'*{title}*\nОпубликовано: _{published}_\n[Ссылка]({link})\n\n'
 
     return header + str_ if str_ else f'Новых постов на {site} нет'
 
