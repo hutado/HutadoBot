@@ -37,7 +37,7 @@ def replace_symbols(text: str) -> str:
     symbols = {"&#039;": "'", "&amp;": "&"}
 
     for item in symbols:
-        text.replace(item, symbols[item])
+        text = text.replace(item, symbols[item])
 
     return text
 
